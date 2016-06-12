@@ -153,19 +153,3 @@ void printVector(vector<double> vec)
     cout << ")";
 }
 //============================================================================
-void show_error(unsigned int handletype, const SQLHANDLE& handle)
-{
-    SQLCHAR sqlstate[1024];
-    SQLCHAR message[1024];
-    if (SQL_SUCCESS == SQLGetDiagRec(
-        handletype,
-        handle,
-        1,
-        sqlstate,
-        NULL,
-        message,
-        1024,
-        NULL)) {
-        cout << "Message: " << message << "\nSQLSTATE: " << sqlstate << endl;
-    }
-}

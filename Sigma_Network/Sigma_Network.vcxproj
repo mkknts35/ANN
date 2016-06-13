@@ -98,6 +98,7 @@
   <ItemGroup>
     <None Include="..\LICENSE" />
     <None Include="ClassDiagram.cd" />
+    <None Include="Iris.csv" />
     <None Include="Makefile" />
     <None Include="test.ann" />
   </ItemGroup>

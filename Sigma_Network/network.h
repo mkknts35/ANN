@@ -81,7 +81,7 @@ public:
     ~network();
     //========================================================================
     // REQUIRES: Two vectors of doubles the same size as the number of 
-    //           inputs/outputs the network was intialized with.
+    //           inputs/outputs the network was initialized with.
     // MODIFIES: This
     // EFFECTS:  Changes the weights of all the inputs in the network
     //========================================================================
@@ -95,12 +95,12 @@ public:
     //========================================================================
     vector<double> push(vector<double> input);
     //========================================================================
-    // The following methods work together to make the network persistant. 
+    // The following methods work together to make the network persistent. 
     // They create and use a file named <m_name>.ann which contains the 
     // network specification and the weights used by all the sigmoids in the 
     // system.  The first line of this file should be the network 
-    // specification seperated by white space.  Each of the following lines 
-    // should contain the weights of a single sigmoid seperated by white 
+    // specification separated by white space.  Each of the following lines 
+    // should contain the weights of a single sigmoid separated by white 
     // space.
     //      eg. 4 3 1 3
     //          -0.931549 -1.26498 1.27358 2.71645
@@ -124,7 +124,7 @@ public:
     // MODIFIES: this
     // EFFECTS: Attempt to locate a previously saved network in the from of a
     //          file by the name of <m_name>.ann.  If the file exists, use it
-    //          to restore the network and return true, otherwise retrun false
+    //          to restore the network and return true, otherwise return false
     //========================================================================
     bool restoreNetwork();
 
@@ -138,9 +138,9 @@ private:
     //========================================================================
     shared_ptr<vector<vector<double>>> getWeights();
     //========================================================================
-    // REQUIRES: The arguement vector's properties must match this' spec
+    // REQUIRES: The argument vector's properties must match this' spec
     // MODIFIES: this
-    // EFFECTS: Sets the weights in the network to the ones in the arguement
+    // EFFECTS: Sets the weights in the network to the ones in the argument
     //          vector (there must be a double for each sigmoid in the network)
     //========================================================================
     void setWeights(vector<vector<double>> weights);

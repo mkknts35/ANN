@@ -65,8 +65,8 @@ int calcPercentageComplete(int position, int end);
 //========================================================================
 // REQUIRES: If percent is 100, finished should be true.
 // MODIFIES: STDOUT
-// EFFECTS: Changes the last three charactors sent to STDOUT to the 
-//          perecent value provided, or to "done" if finished == true.
+// EFFECTS: Changes the last three characters sent to STDOUT to the 
+//          percent value provided, or to "done" if finished == true.
 //========================================================================
 int updateOutputPercentage(int percent, bool finished);
 //========================================================================

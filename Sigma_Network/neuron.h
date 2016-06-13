@@ -93,7 +93,7 @@ public:
     //========================================================================
     // REQUIRES: Nothing
     // MODIFIES: this
-    // EFFECTS: Adjusts the trianing rate
+    // EFFECTS: Adjusts the training rate
     //========================================================================
     void setTrainingRate(double rate);
     //========================================================================

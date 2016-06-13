@@ -51,11 +51,11 @@ public:
     //========================================================================
     // REQUIRES: Sigmoid class
     // MODIFIES: this
-    // EFFECTS: Creates a sigle layer object with the same number of sigmoids
-    //          as there are pointers in the output paramiter setting each 
-    //          output for an individual simoid. Sets the input paramiter as 
-    //          their input.  The last paramiter is treated as a pointer to 
-    //          the layer that uses the input paramiter as its output.
+    // EFFECTS: Creates a single layer object with the same number of sigmoids
+    //          as there are pointers in the output parameter setting each 
+    //          output for an individual sigmoid. Sets the input parameter as 
+    //          their input.  The last parameter is treated as a pointer to 
+    //          the layer that uses the input parameter as its output.
     //========================================================================
     layer(
         vector<shared_ptr<double>> input,
@@ -64,19 +64,19 @@ public:
     // REQUIRES: Sigmoid class
     // MODIFIES: this
     // EFFECTS: Creates multiple layer objects with the number of sigmoids 
-    //          indicated by the size paramiter, and sets the input paramiter 
-    //          as their input.  The last paramiter is treated as a pointer to
-    //          the layer that uses the input paramiter as its output.  This 
-    //          constructor recursivly calls itself the number of times 
-    //          indicated by the hidden paramiter and uses the above 
-    //          constauctor as its base case
+    //          indicated by the size parameter, and sets the input parameter 
+    //          as their input.  The last parameter is treated as a pointer to
+    //          the layer that uses the input parameter as its output.  This 
+    //          constructor recursively calls itself the number of times 
+    //          indicated by the hidden parameter and uses the above 
+    //          constructor as its base case
     //========================================================================
     layer(int size, vector<shared_ptr<double>> input);
     //========================================================================
     // REQUIRES: Constructor be finished
     // MODIFIES: this
     // EFFECTS: Set the pointer to the previous layer in the network if this 
-    //          is the the output layer
+    //          is the output layer
     //========================================================================
     void init(shared_ptr<layer> previous);
     //========================================================================
@@ -118,7 +118,7 @@ public:
     //========================================================================
     void train(vector<double> expected);
     //========================================================================
-    // REQUIRES: One of the calculate<>Error methods to have beed called
+    // REQUIRES: One of the calculate<>Error methods to have been called
     // MODIFIES: Nothing
     // EFFECTS: Returns the sum of the products of indexed weight and the 
     //          error for each sigmoid in the layer.

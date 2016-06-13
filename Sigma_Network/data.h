@@ -26,8 +26,11 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #ifndef DATA_H
 #define DATA_H
+#define _SQLNCLI_OLEDB_
 
 #include <iostream>
+
+#include "sqlncli.h"
 
 using namespace std;
 

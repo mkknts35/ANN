@@ -3,12 +3,8 @@
 //   Author:        Michael Koonts
 //   Date:          April 7, 2016
 //============================================================================
-#define _SQLNCLI_OLEDB_
-
 #include <iostream>
 #include <random>
-
-#include "sqlncli.h"
 
 #include "network.h"
 #include "util.h"

@@ -2,7 +2,7 @@ This data set was obtained at https://archive.ics.uci.edu/ml/datasets/Iris
 It appears to be free to use for this type of project.
 
 1. Title: Iris Plants Database
-	Updated Sept 21 by C.Blake - Added discrepency information
+	Updated Sept 21 by C.Blake - Added discrepancy information
 
 2. Sources:
      (a) Creator: R.A. Fisher

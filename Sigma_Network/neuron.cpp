@@ -42,6 +42,28 @@ neuron::neuron(
 //============================================================================
 neuron::~neuron(){}
 //============================================================================
+void neuron::train(double expected)
+{
+    if (m_hidden) {
+        calculateHiddenError(expected);
+    } else {
+        calculateOutputError(expected);
+    }
+    for (unsigned int i = 0; i < m_weight.size(); i++) {
+        adjustWeight(i, delta(i));
+    }
+    m_trianingRate -= (m_trianingRate * DECAY_RATE);
+}
+//============================================================================
+void neuron::push()
+{
+    double sum = 0;
+    for (unsigned int i = 0; i < m_input.size(); i++) {
+        sum += *m_input.at(i) * m_weight.at(i);
+    }
+    *m_output = activate(sum);
+}
+//============================================================================
 void neuron::setWeights(vector<double> weights)
 {
     m_weight = weights;
@@ -66,3 +88,28 @@ double neuron::getWeightedError(unsigned int weight)
 {
     return m_error * m_oldWeight.at(weight);
 }
+//============================================================================
+// protected
+//============================================================================
+void neuron::adjustWeight(unsigned int weight, double delta)
+{
+    m_weight.at(weight) += delta;
+}
+//============================================================================
+void neuron::calculateOutputError(double expected)
+{
+    m_error = *m_output * (1 - *m_output) * (expected - *m_output);
+    m_oldWeight = vector<double>(m_weight);
+}
+//============================================================================
+void neuron::calculateHiddenError(double expected)
+{
+    m_error = *m_output * (1 - *m_output) * expected;
+    m_oldWeight = vector<double>(m_weight);
+}
+//============================================================================
+double neuron::delta(unsigned int i)
+{
+    return m_trianingRate * m_error * (*m_input.at(i));
+}
+//============================================================================

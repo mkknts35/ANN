@@ -53,50 +53,12 @@ public:
     //========================================================================
     virtual ~sigmoid();
     //========================================================================
-    // REQUIRES: A valid output in m_output
-    // MODIFIES: this
-    // EFFECTS: Adjusts the weights of all the input weights in the sigmoid
-    //========================================================================
-    void train(double expected);
-    //========================================================================
     // REQUIRES: Nothing
     // MODIFIES: Nothing
-    // EFFECTS: Calculates and sets the output of this
+    // EFFECTS: Uses the Sigma function to return a value between 1 and 0 
+    //          exclusive.
     //========================================================================
-    void push();
-
-private:
-    //========================================================================
-    // REQUIRES: Nothing
-    // MODIFIES: Nothing
-    // EFFECTS: Returns a value between 1 and 0 exclusive
-    //========================================================================
-    double sigma(double x);
-    //========================================================================
-    // REQUIRES: An index 0 <= weight <= n where n is the number of inputs the 
-    //           sigmoid has.
-    // MODIFIES: this
-    // EFFECTS: The indexed input weight by the amount given.
-    //========================================================================
-    void adjustWeight(unsigned int weight, double delta);
-    //========================================================================
-    // REQUIRES: A meaningful value in m_output
-    // MODIFIES: this
-    // EFFECTS: sets m_error (used if this is in the output layer)
-    //========================================================================
-    void calculateOutputError(double expected);
-    //========================================================================
-    // REQUIRES: A meaningful value in m_output
-    // MODIFIES: this
-    // EFFECTS: sets m_error (used if this is in a hidden layer)
-    //========================================================================
-    void calculateHiddenError(double expected);
-    //========================================================================
-    // REQUIRES: Nothing
-    // MODIFIES: Nothing
-    // EFFECTS: Calculate the amount the designated weight needs to change
-    //========================================================================
-    double delta(unsigned int i);
+    double activate(double x);
 };
 
 #endif

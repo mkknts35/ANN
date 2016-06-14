@@ -21,8 +21,11 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 //   File:          neuron.h
 //   Author:        Michael Koonts
 //   Date:          June 11, 2016
-//   Description:   Class definition of neuron. This is a virtual base class. 
-//                  
+//   Description:   Class definition of neuron (virtual base class). In order 
+//                  to make this class work the derived class must implement 
+//                  the activate method. There are many commonly used 
+//                  activation functions that can be used to create different 
+//                  types of artificial neural networks.
 //============================================================================
 #pragma once
 #ifndef NEURON_H
@@ -69,15 +72,15 @@ public:
     //========================================================================
     // REQUIRES: A valid output in m_output
     // MODIFIES: this
-    // EFFECTS: Adjusts the weights of all the input weights in the sigmoid
+    // EFFECTS: Adjusts the weights of all the input weights in the neuron
     //========================================================================
-    virtual void train(double expected) = 0;
+    void train(double expected);
     //========================================================================
     // REQUIRES: Nothing
     // MODIFIES: Nothing
     // EFFECTS: Calculates and sets the output of this
     //========================================================================
-    virtual void push() = 0;
+    void push();
     //========================================================================
     // REQUIRES: Nothing
     // MODIFIES: this
@@ -109,6 +112,38 @@ public:
     //          error.
     //========================================================================
     double getWeightedError(unsigned int weight);
+protected:
+    //========================================================================
+    // REQUIRES: Nothing
+    // MODIFIES: Nothing
+    // EFFECTS: Returns a real value between 1 and 0
+    //========================================================================
+    virtual double activate(double x) = 0;
+    //========================================================================
+    // REQUIRES: An index 0 <= weight <= n where n is the number of inputs the 
+    //           sigmoid has.
+    // MODIFIES: this
+    // EFFECTS: The indexed input weight by the amount given.
+    //========================================================================
+    void adjustWeight(unsigned int weight, double delta);
+    //========================================================================
+    // REQUIRES: A meaningful value in m_output
+    // MODIFIES: this
+    // EFFECTS: sets m_error (used if this is in the output layer)
+    //========================================================================
+    void calculateOutputError(double expected);
+    //========================================================================
+    // REQUIRES: A meaningful value in m_output
+    // MODIFIES: this
+    // EFFECTS: sets m_error (used if this is in a hidden layer)
+    //========================================================================
+    void calculateHiddenError(double expected);
+    //========================================================================
+    // REQUIRES: Nothing
+    // MODIFIES: Nothing
+    // EFFECTS: Calculate the amount the designated weight needs to change
+    //========================================================================
+    double delta(unsigned int i);
 };
 
 #endif

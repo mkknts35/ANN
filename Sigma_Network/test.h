@@ -3,8 +3,10 @@
 //   Author:        Michael Koonts
 //   Date:          April 7, 2016
 //============================================================================
+#include <stdlib.h>
 #include <iostream>
 #include <random>
+#include <map>
 
 #include "network.h"
 #include "util.h"
@@ -17,6 +19,7 @@ const unsigned int TRAINING_SAMPLES = 12;
 const unsigned int HIDDEN_LAYERS = 1;
 const unsigned int LAYER_SIZE = 3;
 const unsigned int ITERATIONS = 500000;
+const bool QUIET = true;
 //============================================================================
 enum type
 {

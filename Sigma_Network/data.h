@@ -20,22 +20,35 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 //============================================================================
 //   File:          data.h
 //   Author:        Michael Koonts
-//   Date:          June 11, 2016
+//   Date:          March 26, 2017
 //   Description:   Class definition of data
 //============================================================================
 #pragma once
 #ifndef DATA_H
 #define DATA_H
-#define _SQLNCLI_OLEDB_
 
 #include <iostream>
-
-#include "sqlncli.h"
+#include <stdlib.h>
+#include <mysql_connection.h>
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
 
 using namespace std;
 
 class data
 {
+private:
+    // Specify our connection target and credentials
+    string server   = "tcp://127.0.0.1:3306";
+    string username = "neuralnet";
+    string password = "tenlaruen";
+    sql::Driver     *driver; // Create a pointer to a MySQL driver object
+    sql::Connection *dbConn; // Create a pointer to a database connection object
+    sql::Statement  *stmt;   // Create a pointer to a Statement object to hold our SQL commands
+    sql::ResultSet  *res, *res1;    // Create a pointer to a ResultSet object to hold the results of any queries we run
+ 
 public:
     //========================================================================
     // REQUIRES: 

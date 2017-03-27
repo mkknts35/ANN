@@ -26,6 +26,20 @@
 //============================================================================
 int main(int argc, char *argv[])
 {
+    map<string, vector<double>> typeToVector {
+        {"setosa", { 1, 0, 0 }}, 
+        {"versicolor", { 0, 1, 0 }},
+        {"virginica", { 0, 0, 1 }}
+    };
+
+    map<vector<double>, string> vectorToType {
+        {{ 1, 0, 0 }, "setosa"}, 
+        {{ 0, 1, 0 }, "versicolor"},
+        {{ 0, 0, 1 }, "virginica"}
+    };
+
+    data data;
+
     double percent = 0, oldPercent = 0;
     network net("test", ATTRIBUTES, CATAGORIES, HIDDEN_LAYERS, LAYER_SIZE);
     network rnet("test");
@@ -84,16 +98,16 @@ double push(network net, int start)
             expected = convert(catagory[h], CATAGORIES);
             actual = net.push(input);
             if (catagorize(actual) == h) correct++;
-            if (i % 10 == 0) {
+            if (i % 10 == 0 && !QUIET) {
                 cout << "Actual = ";
                 printVector(actual);
                 cout << " ";
                 cout << "Expected = ";
                 printVector(expected);
                 cout << endl;
+            }
         }
     }
-}
     double total = ((SAMPLES * CATAGORIES) - (start * CATAGORIES));
     double percent = (correct / total) * 100;
     cout << correct << "/" << total << " = " << percent << "% correct." << endl;

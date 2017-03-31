@@ -5,11 +5,13 @@ USE ann;
 DROP TABLE IF EXISTS `iris`;
 
 CREATE TABLE `iris` (
+    `ID` INT(11) NOT NULL AUTO_INCREMENT,
     `sepal_length` FLOAT NOT NULL,
     `sepal_width` FLOAT NOT NULL,
     `petal_length` FLOAT NOT NULL,
     `petal_width` FLOAT NOT NULL,
-    `species` CHAR(20) NOT NULL
+    `species` CHAR(20) NOT NULL,
+    PRIMARY KEY (`ID`)
 );
 
 LOAD DATA LOCAL INFILE 'Iris.csv' INTO TABLE iris 
@@ -17,7 +19,7 @@ LOAD DATA LOCAL INFILE 'Iris.csv' INTO TABLE iris
     LINES TERMINATED BY '\n'
     (sepal_length, sepal_width, petal_length, petal_width, species);
 
-DROP TABLE IF EXISTS `setosa`;
+/*DROP TABLE IF EXISTS `setosa`;
 
 CREATE TABLE `setosa` (
     `ID` INT(11) NOT NULL AUTO_INCREMENT,
@@ -65,3 +67,4 @@ LOAD DATA LOCAL INFILE 'virginica.csv' INTO TABLE virginica
     LINES TERMINATED BY '\n'
     (sepal_length, sepal_width, petal_length, petal_width);
 
+*/

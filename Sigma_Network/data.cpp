@@ -24,62 +24,187 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 //============================================================================
 #include "data.h"
 //============================================================================
-data::data()
+data::data(string server,
+         string username, 
+         string password, 
+         string database)
 {
+    this->server = server;
+    this->username = username;
+    this->password = password;
+    this->database = database; 
+}
+//============================================================================
+data::~data()
+{
+	delete dbConn;
+}
+//============================================================================
+void data::connect(){
     try{
-        // Try to get a driver to use to connect to our DBMS
 		driver = get_driver_instance();
-        // Try to connect to the DBMS server
         dbConn = driver->connect(server, username, password);
-        // Specify which connection our SQL statement should be executed on
+	}catch (sql::SQLException e)	{
+		cout << "SQL error. Error message: " << e.what() << endl;
+	}
+}
+//============================================================================
+void data::collectMetaData(){
+    sql::Statement *stmt;   
+    sql::ResultSet *res, *res1;
+    sql::ResultSetMetaData *rsmd;
+    try{
         stmt = dbConn->createStatement();
-        // Try to query the database
-        // Select which database to use. Notice that we use "execute" to perform a command.
-        stmt->execute("USE ann");
-         // Perform a query and get the results. Notice that we use "executeQuery" to get results back
+        //Select the database
+        stmt->execute("USE " + database);
         res = stmt->executeQuery("SHOW TABLES");
-        // While there are still results (i.e. rows/records) in our result set...
-        while (res->next())
-        {
-            // ...get each field we want and output it to the screen
-            // Note: The first field/column in our result-set is field 1 (one) and -NOT- field 0 (zero)
-            // Also, if we know the name of the field then we can also get it directly by name by using:
-            // res->getString("TheNameOfTheField");
-            cout << res->getString(1) << endl;
-            res1 = stmt->executeQuery("SHOW FIELDS FROM " + res->getString(1));
-            while (res1->next()){
-                cout << res1->getString(1) << endl;
-            }
-            int columns = res1->rowsCount();
-            cout << columns << endl;
-            res1 = stmt->executeQuery("SELECT * FROM " + res->getString(1));
-            cout << res1->rowsCount() << endl;
-            while (res1->next()){
+        res->first();
+        table = res->getString(1);
+        res = stmt->executeQuery("SHOW FIELDS FROM " + table);
+        res->last();
+        catagories = res->getString(1);
+        //cout << catagories << endl;
+        res = stmt->executeQuery("SELECT DISTINCT " + catagories + " FROM " + table);
+        res1 = stmt->executeQuery("SELECT COUNT(*) FROM " + table + " GROUP BY " + catagories + " HAVING COUNT(*) > 1");
+        
+        //printResultSet(res1);
+        //res = stmt->executeQuery("SELECT COUNT(DISTINCT " + catagories + ") FROM " + table);
+        //printResultSet(res);
+        //res->first();
+        int curr = 0;
+        vector<double> tmp;
+        catagoryCount = res->rowsCount();
+
+        while(res->next()){
+            catagoryNames.push_back(res->getString(1));
+            tmp = classVector(catagoryCount, curr);
+            typeToVector[catagoryNames.at(curr)] = tmp;
+            vectorToType[tmp] = catagoryNames.at(curr);
+            curr++;
+        }
+        if(catagoryCount != res1->rowsCount()){
+            cout << "Error: Catagory count mismatch!" << endl;
+            exit(1);
+        }
+        curr = 0;
+        while(res1->next()){
+            sampleCounts[catagoryNames.at(curr)] = res1->getInt(1);
+            //cout << sampleCounts[catagoryNames.at(curr)] << endl;
+            curr++;
+        }
+        //cout << catagoryCount << endl;
+        // for(int i = 0; i < catagoryCount; i++){
+        //     tmp = typeToVector[catagoryNames.at(i)];
+        //     printVector(tmp);
+        //     cout << endl;
+        //     cout << vectorToType[tmp] << endl;
+        // }
+    }catch (sql::SQLException e)	{
+		cout << "SQL error. Error message: " << e.what() << endl;
+	} 
+}
+//============================================================================
+void data::printMetaData(){
+    cout << "Database: " << database << endl;
+    cout << "Table: " << table << endl;
+    cout << "Catagorized by: " << catagories << endl;
+    cout << "Catagory names :";
+    printVector(catagoryNames);
+    cout << endl;
+}
+//============================================================================
+void data::printResultSet(sql::ResultSet *results){
+    sql::ResultSetMetaData *metaData = results->getMetaData();
+    unsigned int columns = metaData->getColumnCount();
+    unsigned int rows = results->rowsCount();
+    cout << columns << " columns, " << rows << " rows" << endl;
+    while (results->next()){
                 for(int i = 1; i <= columns; i++){
-                    cout << res1->getString(i);
+                    cout << results->getString(i);
                     if(i < columns){
                         cout << ", ";
                     }
                 }
                 cout  << endl;
             }
-
-        }
-	}
-	catch (sql::MethodNotImplementedException e){
-		cout << "Could not get a database driver. Error message: " << e.what() << endl;
-	}catch (sql::InvalidArgumentException e){
-		cout << "Could not connect to database. Error message: " << e.what() << endl;
+}
+//============================================================================
+vector<vector<double>> data::getTrainingSet(){
+    vector<vector<double>> set;
+    return set;
+}
+//============================================================================
+vector<vector<double>> data::getTestSet(){
+    vector<vector<double>> set;
+    return set;
+}
+//============================================================================
+void data::testQuery(){
+    // Create a pointer to a Statement object to hold our SQL commands
+    sql::Statement *stmt;   
+    // Create a pointer to a ResultSet object to hold the results of any queries we run
+    sql::ResultSet *res;
+    sql::ResultSetMetaData *rsmd;
+    try{
+        stmt = dbConn->createStatement();
+    //     // Select the database
+    //     stmt->execute("USE " + database);
+    //     // get the names of its tables
+        res = stmt->executeQuery("(SELECT * FROM iris WHERE species='setosa' LIMIT 10) UNION (SELECT * FROM iris WHERE species='versicolor' LIMIT 10) UNION (SELECT * FROM iris WHERE species='virginica' LIMIT 10)");
+    //     // Look at the results of the query
+        printResultSet(res);
+    //     res->first();
+    //     cout << res->getString(1) << endl;
+    //     table = res->getString(1);
+    //     res = stmt->executeQuery("SHOW FIELDS FROM " + table);
+    //     res->last();
+    //     catagories = res->getString(1);
+    //     cout << catagories << endl;
+    //     res = stmt->executeQuery("SELECT DISTINCT " + catagories + " FROM " + table);
+    //     printResultSet(res);
+    //     res = stmt->executeQuery("SELECT COUNT(DISTINCT " + catagories + ") FROM " + table);
+    //     printResultSet(res);
+    //     res->first();
+    //     catagoryCount = res->getInt(1);
+    //     cout << catagoryCount << endl;       
 	}catch (sql::SQLException e)	{
 		cout << "SQL error. Error message: " << e.what() << endl;
 	}
- 
 }
 //============================================================================
-data::~data()
+void data::printVector(vector<string> vec)
 {
-    delete res;
-	delete stmt;
-	delete dbConn;
+    cout << "{";
+    for (unsigned int i = 0; i < vec.size(); i++) {
+        cout << vec.at(i);
+        if (i < vec.size() - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}";
+}
+//============================================================================
+vector<double> data::classVector(int length, int onePosition){
+    vector<double> cVec;
+    for(unsigned int i = 0; i < length; i++){
+        if(i == onePosition){
+            cVec.push_back(1);
+        }else{
+            cVec.push_back(0);
+        }
+    }
+    return cVec;
+}
+//============================================================================
+void data::printVector(vector<double> vec)
+{
+    cout << "(";
+    for (unsigned int i = 0; i < vec.size(); i++) {
+        cout << vec.at(i);
+        if (i < vec.size() - 1) {
+            cout << ", ";
+        }
+    }
+    cout << ")";
 }
 //============================================================================

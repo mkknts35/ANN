@@ -38,7 +38,16 @@ int main(int argc, char *argv[])
         {{ 0, 0, 1 }, "virginica"}
     };
 
+    // vector<double> tmp = typeToVector["setosa"];
+    // printVector(tmp);
+    // cout << endl;
+    // cout << vectorToType[tmp] << endl;
+
     data data;
+    data.connect();
+    data.collectMetaData();
+    data.printMetaData();
+    data.testQuery();
 
     double percent = 0, oldPercent = 0;
     network net("test", ATTRIBUTES, CATAGORIES, HIDDEN_LAYERS, LAYER_SIZE);
@@ -52,7 +61,7 @@ int main(int argc, char *argv[])
         oldPercent = push(rnet, 0);
     }
 
-    train(net, ITERATIONS);
+    /*train(net, ITERATIONS);
 
     cout << "After training" << endl;
     percent = push(net, TRAINING_SAMPLES);
@@ -60,7 +69,7 @@ int main(int argc, char *argv[])
     if (percent > oldPercent) {
         net.writeNetwork();
     }
-    system("pause");
+    system("pause");*/
     return 0;
 }
 //============================================================================

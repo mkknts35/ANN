@@ -29,25 +29,39 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
+#include <map>
 #include <mysql_connection.h>
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <cppconn/resultset_metadata.h>
 
 using namespace std;
 
 class data
 {
+
 private:
     // Specify our connection target and credentials
-    string server   = "tcp://127.0.0.1:3306";
-    string username = "neuralnet";
-    string password = "tenlaruen";
-    sql::Driver     *driver; // Create a pointer to a MySQL driver object
-    sql::Connection *dbConn; // Create a pointer to a database connection object
-    sql::Statement  *stmt;   // Create a pointer to a Statement object to hold our SQL commands
-    sql::ResultSet  *res, *res1;    // Create a pointer to a ResultSet object to hold the results of any queries we run
+    string server;
+    string username;
+    string password;
+    string database;
+    string table;
+    string catagories;
+    int catagoryCount = 0;
+    vector<string> catagoryNames;
+    // Create a pointer to a MySQL driver object
+    sql::Driver *driver;
+    // Create a pointer to a database connection object
+    sql::Connection *dbConn;
+
+    map<string, vector<double>> typeToVector;
+    map<vector<double>, string> vectorToType;
+    map<string, int> sampleCounts;
+    
  
 public:
     //========================================================================
@@ -55,13 +69,71 @@ public:
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    data();
+    data(string server = "tcp://127.0.0.1:3306",
+         string username = "neuralnet", 
+         string password = "tenlaruen", 
+         string database = "ann");
     //========================================================================
     // REQUIRES: 
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
     ~data();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void connect();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void collectMetaData();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void printMetaData();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void printResultSet(sql::ResultSet *results);
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    vector<vector<double>> getTrainingSet();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    vector<vector<double>> getTestSet();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void testQuery();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void printVector(vector<string> vec);
+    void printVector(vector<double> vec);
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    vector<double> classVector(int length, int onePosition);
 };
 
 #endif

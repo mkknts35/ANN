@@ -29,88 +29,105 @@ data::data(string server,
          string password, 
          string database)
 {
-    this->server = server;
-    this->username = username;
-    this->password = password;
-    this->database = database; 
+    this->m_server = server;
+    this->m_username = username;
+    this->m_password = password;
+    this->m_database = database; 
+    m_workingSet = make_shared<vector<sample>>();
 }
 //============================================================================
 data::~data()
 {
-	delete dbConn;
+	delete m_dbConn;
 }
 //============================================================================
 void data::connect(){
-    try{
-		driver = get_driver_instance();
-        dbConn = driver->connect(server, username, password);
-	}catch (sql::SQLException e)	{
-		cout << "SQL error. Error message: " << e.what() << endl;
-	}
-}
-//============================================================================
-void data::collectMetaData(){
     sql::Statement *stmt;   
     sql::ResultSet *res, *res1;
     sql::ResultSetMetaData *rsmd;
     try{
-        stmt = dbConn->createStatement();
-        //Select the database
-        stmt->execute("USE " + database);
+		m_driver = get_driver_instance();
+        m_dbConn = m_driver->connect(m_server, m_username, m_password);
+        stmt = m_dbConn->createStatement();
+        stmt->execute("USE " + m_database);
         res = stmt->executeQuery("SHOW TABLES");
         res->first();
-        table = res->getString(1);
-        res = stmt->executeQuery("SHOW FIELDS FROM " + table);
+        //m_table = res->getString(1);
+        res = stmt->executeQuery("SHOW FIELDS FROM " + m_table);
         res->last();
-        catagories = res->getString(1);
-        //cout << catagories << endl;
-        res = stmt->executeQuery("SELECT DISTINCT " + catagories + " FROM " + table);
-        res1 = stmt->executeQuery("SELECT COUNT(*) FROM " + table + " GROUP BY " + catagories + " HAVING COUNT(*) > 1");
-        
-        //printResultSet(res1);
-        //res = stmt->executeQuery("SELECT COUNT(DISTINCT " + catagories + ") FROM " + table);
-        //printResultSet(res);
-        //res->first();
+        m_catagories = res->getString(1);
+        m_attributeCount = res->rowsCount() - 2; //ID and catagory shouldn't be included
+        res = stmt->executeQuery("SELECT DISTINCT " + m_catagories + " FROM " + m_table);
+        res1 = stmt->executeQuery("SELECT COUNT(*) FROM " + m_table + " GROUP BY " 
+                                    + m_catagories + " HAVING COUNT(*) > 1");
         int curr = 0;
         vector<double> tmp;
-        catagoryCount = res->rowsCount();
+        m_catagoryCount = res->rowsCount();
 
         while(res->next()){
-            catagoryNames.push_back(res->getString(1));
-            tmp = classVector(catagoryCount, curr);
-            typeToVector[catagoryNames.at(curr)] = tmp;
-            vectorToType[tmp] = catagoryNames.at(curr);
+            m_catagoryNames.push_back(res->getString(1));
+            tmp = classVector(m_catagoryCount, curr);
+            m_typeToVector[m_catagoryNames.at(curr)] = tmp;
+            m_vectorToType[tmp] = m_catagoryNames.at(curr);
             curr++;
         }
-        if(catagoryCount != res1->rowsCount()){
+        if(m_catagoryCount != res1->rowsCount()){
             cout << "Error: Catagory count mismatch!" << endl;
             exit(1);
         }
         curr = 0;
         while(res1->next()){
-            sampleCounts[catagoryNames.at(curr)] = res1->getInt(1);
+            m_sampleCounts[m_catagoryNames.at(curr)] = res1->getInt(1);
             //cout << sampleCounts[catagoryNames.at(curr)] << endl;
             curr++;
         }
-        //cout << catagoryCount << endl;
-        // for(int i = 0; i < catagoryCount; i++){
-        //     tmp = typeToVector[catagoryNames.at(i)];
-        //     printVector(tmp);
-        //     cout << endl;
-        //     cout << vectorToType[tmp] << endl;
-        // }
-    }catch (sql::SQLException e)	{
+	}catch (sql::SQLException e)	{
 		cout << "SQL error. Error message: " << e.what() << endl;
-	} 
+	}
+}
+//============================================================================
+void data::init(string database, string table){
+    m_database = database;
+    m_table = table;
+    this->connect();
+}
+//============================================================================
+int data::getCatagoryCount(){
+    return m_catagoryCount;
+}
+//============================================================================
+int data::getAttributeCount(){
+    return m_attributeCount;
+}
+//============================================================================
+int data::getSampleCount(){
+    return m_sampleCount;
+}
+//============================================================================
+string data::getTableName(){
+    return m_table;
+}
+//============================================================================
+map<string, vector<double>> data::getTypeToVector(){
+    return m_typeToVector;
+}
+//============================================================================
+map<vector<double>, string> data::getVectorToType(){
+    return m_vectorToType;
+}
+//============================================================================
+map<string, int> data::getSampleCounts(){
+    return m_sampleCounts;
 }
 //============================================================================
 void data::printMetaData(){
-    cout << "Database: " << database << endl;
-    cout << "Table: " << table << endl;
-    cout << "Catagorized by: " << catagories << endl;
+    cout << "Database: " << m_database << endl;
+    cout << "Table: " << m_table << endl;
+    cout << "Catagorized by: " << m_catagories << endl;
     cout << "Catagory names :";
-    printVector(catagoryNames);
+    printVector(m_catagoryNames);
     cout << endl;
+    cout << "Distingushed by " << m_attributeCount << " attributes" << endl;
 }
 //============================================================================
 void data::printResultSet(sql::ResultSet *results){
@@ -129,47 +146,128 @@ void data::printResultSet(sql::ResultSet *results){
             }
 }
 //============================================================================
-vector<vector<double>> data::getTrainingSet(){
-    vector<vector<double>> set;
-    return set;
+shared_ptr<vector<sample>> data::getDataSet(bool training){
+    m_workingSet->clear();
+    if(training){
+        fetchTrainingSet();
+    }else{
+        fetchDataSet();
+    }
+    return m_workingSet;
 }
 //============================================================================
-vector<vector<double>> data::getTestSet(){
-    vector<vector<double>> set;
-    return set;
-}
-//============================================================================
-void data::testQuery(){
-    // Create a pointer to a Statement object to hold our SQL commands
+void data::fetchTrainingSet(){
+
     sql::Statement *stmt;   
-    // Create a pointer to a ResultSet object to hold the results of any queries we run
     sql::ResultSet *res;
     sql::ResultSetMetaData *rsmd;
+    string query = "";
+    
     try{
-        stmt = dbConn->createStatement();
-    //     // Select the database
-    //     stmt->execute("USE " + database);
-    //     // get the names of its tables
-        res = stmt->executeQuery("(SELECT * FROM iris WHERE species='setosa' LIMIT 10) UNION (SELECT * FROM iris WHERE species='versicolor' LIMIT 10) UNION (SELECT * FROM iris WHERE species='virginica' LIMIT 10)");
-    //     // Look at the results of the query
-        printResultSet(res);
-    //     res->first();
-    //     cout << res->getString(1) << endl;
-    //     table = res->getString(1);
-    //     res = stmt->executeQuery("SHOW FIELDS FROM " + table);
-    //     res->last();
-    //     catagories = res->getString(1);
-    //     cout << catagories << endl;
-    //     res = stmt->executeQuery("SELECT DISTINCT " + catagories + " FROM " + table);
-    //     printResultSet(res);
-    //     res = stmt->executeQuery("SELECT COUNT(DISTINCT " + catagories + ") FROM " + table);
-    //     printResultSet(res);
-    //     res->first();
-    //     catagoryCount = res->getInt(1);
-    //     cout << catagoryCount << endl;       
+        stmt = m_dbConn->createStatement();
+        for(int i = 0; i < m_catagoryCount; i++){
+            int limit = m_sampleCounts[m_catagoryNames.at(i)] / 4;
+            query = query + "(SELECT * FROM " + m_table 
+                    + " WHERE " + m_catagories +"='" + m_catagoryNames.at(i) 
+                    + "' ORDER BY RAND() LIMIT " + to_string(limit) + ")";
+            if(i != m_catagoryCount - 1){
+                query = query + " UNION ";
+            }else{
+                query = query + " ORDER BY RAND()";
+            }
+        }
+        res = stmt->executeQuery(query);
+        m_sampleCount = res->rowsCount();
+        rsmd = res->getMetaData();
+        int columns = rsmd->getColumnCount();
+        while(res->next()){
+            //
+            sample spl;
+            // i starts at 2 because the results are indexed from 1,
+            // and the first column is trash for our current purposes
+            for(int i = 2; i < columns; i++){
+                spl.addValue(res->getDouble(i));
+            }
+            spl.setClassification(res->getString(columns));
+            m_workingSet->push_back(spl);
+            //spl.printSample();
+        }
 	}catch (sql::SQLException e)	{
 		cout << "SQL error. Error message: " << e.what() << endl;
 	}
+}
+//============================================================================
+void data::fetchDataSet(){
+
+    sql::Statement *stmt;   
+    sql::ResultSet *res;
+    sql::ResultSetMetaData *rsmd;
+    string query = "SELECT * FROM " + m_table + " ORDER BY RAND()";
+    
+    try{
+        stmt = m_dbConn->createStatement();
+        //cout << query << endl;
+        res = stmt->executeQuery(query);
+        m_sampleCount = res->rowsCount();
+        //printResultSet(res);
+        //res->beforeFirst();
+        rsmd = res->getMetaData();
+        int columns = rsmd->getColumnCount();
+        while(res->next()){
+            sample spl;
+            // i starts at 2 because the results are indexed from 1,
+            // and the first column is trash for our current purposes
+            for(int i = 2; i < columns; i++){
+                spl.addValue(res->getDouble(i));
+            }
+            spl.setClassification(res->getString(columns));
+            m_workingSet->push_back(spl);
+            //spl.printSample();
+        }
+	}catch (sql::SQLException e)	{
+		cout << "SQL error. Error message: " << e.what() << endl;
+	}
+}
+//============================================================================
+void data::testQuery(){
+
+    // sql::Statement *stmt;   
+    // sql::ResultSet *res;
+    // sql::ResultSetMetaData *rsmd;
+    // string query = "SELECT * FROM " + table + " ORDER BY RAND()";
+    
+    // try{
+    //     stmt = dbConn->createStatement();
+    //     /*for(int i = 0; i < catagoryCount; i++){
+    //         int limit = sampleCounts[catagoryNames.at(i)] / 4;
+    //         query = query + "(SELECT * FROM " + table 
+    //                 + " WHERE " + catagories +"='" + catagoryNames.at(i) 
+    //                 + "' ORDER BY RAND() LIMIT " + to_string(limit) + ")";
+    //         if(i != catagoryCount - 1){
+    //             query = query + " UNION ";
+    //         }else{
+    //             query = query + " ORDER BY RAND()";
+    //         }
+    //     }*/
+    //     cout << query << endl;
+    //     res = stmt->executeQuery(query);
+    //     printResultSet(res);
+    //     res->beforeFirst();
+    //     rsmd = res->getMetaData();
+    //     int columns = rsmd->getColumnCount();
+    //     while(res->next()){
+    //         sample spl;
+    //         // i starts at 2 because the results are indexed from 1,
+    //         // and the first column is trash for our current purposes
+    //         for(int i = 2; i < columns; i++){
+    //             spl->addValue(res->getDouble(i));
+    //         }
+    //         spl->setClassification(res->getString(columns));
+    //         workingSet->push_back(spl);
+    //     }
+	// }catch (sql::SQLException e)	{
+	// 	cout << "SQL error. Error message: " << e.what() << endl;
+	// }
 }
 //============================================================================
 void data::printVector(vector<string> vec)

@@ -26,17 +26,7 @@
 //============================================================================
 int main(int argc, char *argv[])
 {
-    map<string, vector<double>> typeToVector {
-        {"setosa", { 1, 0, 0 }}, 
-        {"versicolor", { 0, 1, 0 }},
-        {"virginica", { 0, 0, 1 }}
-    };
-
-    map<vector<double>, string> vectorToType {
-        {{ 1, 0, 0 }, "setosa"}, 
-        {{ 0, 1, 0 }, "versicolor"},
-        {{ 0, 0, 1 }, "virginica"}
-    };
+    
 
     // vector<double> tmp = typeToVector["setosa"];
     // printVector(tmp);
@@ -44,32 +34,121 @@ int main(int argc, char *argv[])
     // cout << vectorToType[tmp] << endl;
 
     data data;
-    data.connect();
-    data.collectMetaData();
+    data.init();
+    //data.collectMetaData();
     data.printMetaData();
-    data.testQuery();
+    //data.testQuery();
 
-    double percent = 0, oldPercent = 0;
-    network net("test", ATTRIBUTES, CATAGORIES, HIDDEN_LAYERS, LAYER_SIZE);
-    network rnet("test");
+    shared_ptr<vector<sample>> dataSet = data.getDataSet(true);
 
+    map<string, vector<double>> typeToVector = data.getTypeToVector();
+    map<vector<double>, string> vectorToType = data.getVectorToType();
+    map<string, int> sampleCounts = data.getSampleCounts();
+    
     cout << "Before training" << endl;
-    percent = push(net, 0);
-
-    if (rnet.restoreNetwork()) {
-        cout << "Restoring saved network." << endl;
-        oldPercent = push(rnet, 0);
+    vector<double> input;
+    vector<double> expected;
+    vector<double> actual;
+    double correct = 0;
+    int i = 0;
+    vector<sample>::iterator currentSample = dataSet->begin();
+    network dnet(data.getTableName(), data.getAttributeCount(), data.getCatagoryCount(), HIDDEN_LAYERS, LAYER_SIZE);
+    while(currentSample != dataSet->end()){
+        //currentSample->printSample();
+        input = currentSample->getValues();
+        expected = typeToVector[currentSample->getClassification()];
+        actual = dnet.push(input);
+        if (data.classVector(data.getCatagoryCount(), catagorize(actual)) == expected) correct++;
+        if (i % 100 == 0 && !QUIET) {
+            cout << "Actual = ";
+            printVector(actual);
+            cout << " ";
+            cout << "Expected = ";
+            printVector(expected);
+            cout << endl;
+        }
+        i++;
+        currentSample++;
     }
+    double total = data.getSampleCount();
+    double percent = (correct / total) * 100;
+    cout << correct << "/" << total << " = " << percent << "% correct." << endl;
+    
 
-    /*train(net, ITERATIONS);
+    struct timeval profileStart, profileEnd;
+    gettimeofday(&profileStart, NULL);
 
+    int p = 0, oldp = -1;
+    outputStatusMessage("Training the network");
+
+    for (unsigned int g = 0; g < ITERATIONS; g++) {
+        p = calcPercentageComplete(g, ITERATIONS);
+        if (oldp < p) {
+            oldp = updateOutputPercentage(p, false);
+        }
+        //int current = cat(engine);
+        currentSample = dataSet->begin();
+        while(currentSample != dataSet->end()){
+            input = currentSample->getValues();
+            expected = typeToVector[currentSample->getClassification()];
+            actual = dnet.push(input);
+            dnet.train(input, expected);
+            currentSample++;
+        }
+    }
+    updateOutputPercentage(p, true);
+
+    gettimeofday(&profileEnd, NULL);
+    PrintTimeDifference(profileStart, profileEnd);
     cout << "After training" << endl;
-    percent = push(net, TRAINING_SAMPLES);
-
-    if (percent > oldPercent) {
-        net.writeNetwork();
+    dataSet = data.getDataSet(false);
+    currentSample = dataSet->begin();
+    correct = 0;
+    i = 0;
+    while(currentSample != dataSet->end()){
+        //currentSample->printSample();
+        input = currentSample->getValues();
+        expected = typeToVector[currentSample->getClassification()];
+        actual = dnet.push(input);
+        if (data.classVector(data.getCatagoryCount(), catagorize(actual)) == expected) correct++;
+        if (i % 100 == 0 && !QUIET) {
+            cout << i << ") Actual = ";
+            printVector(actual);
+            cout << " ";
+            cout << "Expected = ";
+            printVector(expected);
+            cout << endl;
+        }
+        i++;
+        currentSample++;
     }
-    system("pause");*/
+    //cout << i << endl;
+    total = data.getSampleCount();
+    percent = (correct / total) * 100;
+    cout << correct << "/" << total << " = " << percent << "% correct." << endl;
+    dnet.writeNetwork();
+    //percent = 0;
+    //double oldPercent = 0;
+    // network net("test", ATTRIBUTES, CATAGORIES, HIDDEN_LAYERS, LAYER_SIZE);
+    // network rnet("test");
+
+
+    //percent = push(net, 0);
+
+    // if (rnet.restoreNetwork()) {
+    //     cout << "Restoring saved network." << endl;
+    //     oldPercent = push(rnet, 0);
+    // }
+
+    //train(net, ITERATIONS);
+
+    //cout << "After training" << endl;
+    //percent = push(net, TRAINING_SAMPLES);
+
+    // if (percent > oldPercent) {
+    //     net.writeNetwork();
+    // }
+    // system("pause");
     return 0;
 }
 //============================================================================

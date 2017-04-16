@@ -11,13 +11,14 @@
 #include "network.h"
 #include "util.h"
 #include "data.h"
+#include "sample.h"
 //============================================================================
 const unsigned int ATTRIBUTES = 4;
 const unsigned int SAMPLES = 50;
 const unsigned int CATAGORIES = 3;
 const unsigned int TRAINING_SAMPLES = 12;
 const unsigned int HIDDEN_LAYERS = 1;
-const unsigned int LAYER_SIZE = 3;
+const unsigned int LAYER_SIZE = 7;
 const unsigned int ITERATIONS = 500000;
 const bool QUIET = true;
 //============================================================================

@@ -31,12 +31,15 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <vector>
 #include <map>
+#include <memory>
 #include <mysql_connection.h>
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/resultset_metadata.h>
+
+#include "sample.h"
 
 using namespace std;
 
@@ -45,22 +48,27 @@ class data
 
 private:
     // Specify our connection target and credentials
-    string server;
-    string username;
-    string password;
-    string database;
-    string table;
-    string catagories;
-    int catagoryCount = 0;
-    vector<string> catagoryNames;
+    string m_server;
+    string m_username;
+    string m_password;
+    string m_database;
     // Create a pointer to a MySQL driver object
-    sql::Driver *driver;
+    sql::Driver *m_driver;
     // Create a pointer to a database connection object
-    sql::Connection *dbConn;
+    sql::Connection *m_dbConn;
 
-    map<string, vector<double>> typeToVector;
-    map<vector<double>, string> vectorToType;
-    map<string, int> sampleCounts;
+    //Metadata
+    string m_table;
+    string m_catagories;
+    int m_catagoryCount = 0;
+    int m_attributeCount = 0;
+    int m_sampleCount = 0;
+    vector<string> m_catagoryNames;
+    map<string, vector<double>> m_typeToVector;
+    map<vector<double>, string> m_vectorToType;
+    map<string, int> m_sampleCounts;
+
+    shared_ptr<vector<sample>> m_workingSet;
     
  
 public:
@@ -84,13 +92,13 @@ public:
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    void connect();
+    void init(string database = "ann", string table = "iris");
     //========================================================================
     // REQUIRES: 
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    void collectMetaData();
+    //void collectMetaData();
     //========================================================================
     // REQUIRES: 
     // MODIFIES: 
@@ -108,13 +116,7 @@ public:
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    vector<vector<double>> getTrainingSet();
-    //========================================================================
-    // REQUIRES: 
-    // MODIFIES: 
-    // EFFECTS: 
-    //========================================================================
-    vector<vector<double>> getTestSet();
+    shared_ptr<vector<sample>> getDataSet(bool training);
     //========================================================================
     // REQUIRES: 
     // MODIFIES: 
@@ -134,6 +136,22 @@ public:
     // EFFECTS: 
     //========================================================================
     vector<double> classVector(int length, int onePosition);
+    int getCatagoryCount();
+    int getAttributeCount();
+    int getSampleCount();
+    string getTableName();
+    map<string, vector<double>> getTypeToVector();
+    map<vector<double>, string> getVectorToType();
+    map<string, int> getSampleCounts();
+private:
+    void fetchTrainingSet();
+    void fetchDataSet();
+    //========================================================================
+    // REQUIRES: 
+    // MODIFIES: 
+    // EFFECTS: 
+    //========================================================================
+    void connect();
 };
 
 #endif

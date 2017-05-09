@@ -26,7 +26,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#define WINDOWSSYSTEM 1
+#define WINDOWSSYSTEM 0
 
 #if WINDOWSSYSTEM
 #include <Windows.h>

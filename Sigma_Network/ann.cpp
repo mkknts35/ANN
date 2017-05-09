@@ -162,7 +162,6 @@ void train(network net, shared_ptr<vector<sample>> dataSet)
     vector<double> expected;
     vector<double> actual;
     vector<sample>::iterator currentSample = dataSet->begin();
-    struct timeval profileStart, profileEnd;
 #if WINDOWSSYSTEM
 	FILETIME tStart, tEnd;
 	GetSystemTimeAsFileTime(&tStart);

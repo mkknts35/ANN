@@ -4,7 +4,7 @@ SQLFLAGS=-l mysqlcppconn
 iris: test
 	./test -d ann -t iris
 arem: test
-	./test -d ann -t arem
+	./test -d ann -t arem -q
 test: ann.h ann.cpp network.o layer.o sigmoid.o neuron.o util.o sample.o data.o
 	g++ $(CFLAGS) -o test $(SQLINCLUDES) $(SQLFLAGS) ann.cpp network.o layer.o sigmoid.o neuron.o util.o data.o sample.o
 network.o: network.h network.cpp

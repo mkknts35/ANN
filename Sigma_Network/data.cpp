@@ -24,7 +24,7 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 //============================================================================
 #include "data.h"
 //============================================================================
-data::data(string server,
+Data::Data(string server,
          string username, 
          string password, 
          string database)
@@ -36,12 +36,12 @@ data::data(string server,
     m_workingSet = make_shared<vector<sample>>();
 }
 //============================================================================
-data::~data()
+Data::~Data()
 {
 	delete m_dbConn;
 }
 //============================================================================
-void data::connect(){
+void Data::connect(){
     sql::Statement *stmt;   
     sql::ResultSet *res, *res1;
     sql::ResultSetMetaData *rsmd;
@@ -86,41 +86,41 @@ void data::connect(){
 	}
 }
 //============================================================================
-void data::init(string database, string table){
+void Data::init(string database, string table){
     m_database = database;
     m_table = table;
     this->connect();
 }
 //============================================================================
-int data::getCatagoryCount(){
+int Data::getCatagoryCount(){
     return m_catagoryCount;
 }
 //============================================================================
-int data::getAttributeCount(){
+int Data::getAttributeCount(){
     return m_attributeCount;
 }
 //============================================================================
-int data::getSampleCount(){
+int Data::getSampleCount(){
     return m_sampleCount;
 }
 //============================================================================
-string data::getTableName(){
+string Data::getTableName(){
     return m_table;
 }
 //============================================================================
-map<string, vector<double>> data::getTypeToVector(){
+map<string, vector<double>> Data::getTypeToVector(){
     return m_typeToVector;
 }
 //============================================================================
-map<vector<double>, string> data::getVectorToType(){
+map<vector<double>, string> Data::getVectorToType(){
     return m_vectorToType;
 }
 //============================================================================
-map<string, int> data::getSampleCounts(){
+map<string, int> Data::getSampleCounts(){
     return m_sampleCounts;
 }
 //============================================================================
-void data::printMetaData(){
+void Data::printMetaData(){
     cout << "Database: " << m_database << endl;
     cout << "Table: " << m_table << endl;
     cout << "Catagorized by: " << m_catagories << endl;
@@ -130,7 +130,7 @@ void data::printMetaData(){
     cout << "Distingushed by " << m_attributeCount << " attributes" << endl;
 }
 //============================================================================
-void data::printResultSet(sql::ResultSet *results){
+void Data::printResultSet(sql::ResultSet *results){
     sql::ResultSetMetaData *metaData = results->getMetaData();
     unsigned int columns = metaData->getColumnCount();
     unsigned int rows = results->rowsCount();
@@ -146,7 +146,7 @@ void data::printResultSet(sql::ResultSet *results){
             }
 }
 //============================================================================
-shared_ptr<vector<sample>> data::getDataSet(bool training){
+shared_ptr<vector<sample>> Data::getDataSet(bool training){
     m_workingSet->clear();
     if(training){
         fetchTrainingSet();
@@ -156,7 +156,7 @@ shared_ptr<vector<sample>> data::getDataSet(bool training){
     return m_workingSet;
 }
 //============================================================================
-void data::fetchTrainingSet(){
+void Data::fetchTrainingSet(){
 
     sql::Statement *stmt;   
     sql::ResultSet *res;
@@ -197,7 +197,7 @@ void data::fetchTrainingSet(){
 	}
 }
 //============================================================================
-void data::fetchDataSet(){
+void Data::fetchDataSet(){
 
     sql::Statement *stmt;   
     sql::ResultSet *res;
@@ -229,7 +229,7 @@ void data::fetchDataSet(){
 	}
 }
 //============================================================================
-void data::testQuery(){
+void Data::testQuery(){
 
     // sql::Statement *stmt;   
     // sql::ResultSet *res;
@@ -270,7 +270,7 @@ void data::testQuery(){
 	// }
 }
 //============================================================================
-void data::printVector(vector<string> vec)
+void Data::printVector(vector<string> vec)
 {
     cout << "{";
     for (unsigned int i = 0; i < vec.size(); i++) {
@@ -282,7 +282,7 @@ void data::printVector(vector<string> vec)
     cout << "}";
 }
 //============================================================================
-vector<double> data::classVector(int length, int onePosition){
+vector<double> Data::classVector(int length, int onePosition){
     vector<double> cVec;
     for(unsigned int i = 0; i < length; i++){
         if(i == onePosition){
@@ -294,7 +294,7 @@ vector<double> data::classVector(int length, int onePosition){
     return cVec;
 }
 //============================================================================
-void data::printVector(vector<double> vec)
+void Data::printVector(vector<double> vec)
 {
     cout << "(";
     for (unsigned int i = 0; i < vec.size(); i++) {

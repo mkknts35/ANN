@@ -43,7 +43,7 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-class data
+class Data
 {
 
 private:
@@ -77,7 +77,7 @@ public:
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    data(string server = "tcp://127.0.0.1:3306",
+    Data(string server = "tcp://127.0.0.1:3306",
          string username = "neuralnet", 
          string password = "tenlaruen", 
          string database = "ann");
@@ -86,7 +86,7 @@ public:
     // MODIFIES: 
     // EFFECTS: 
     //========================================================================
-    ~data();
+    ~Data();
     //========================================================================
     // REQUIRES: 
     // MODIFIES: 

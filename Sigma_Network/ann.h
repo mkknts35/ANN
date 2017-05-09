@@ -17,7 +17,7 @@ const unsigned int HIDDEN_LAYERS = 2;
 const unsigned int LAYER_SIZE = 14;
 const unsigned int ITERATIONS = 5000;
 //============================================================================
-data m_data;
+Data m_data;
 shared_ptr<vector<sample>> m_dataSet;
 map<string, vector<double>> m_typeToVector;
 map<vector<double>, string> m_vectorToType;

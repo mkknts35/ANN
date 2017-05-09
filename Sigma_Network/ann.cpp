@@ -163,8 +163,13 @@ void train(network net, shared_ptr<vector<sample>> dataSet)
     vector<double> actual;
     vector<sample>::iterator currentSample = dataSet->begin();
     struct timeval profileStart, profileEnd;
-    gettimeofday(&profileStart, NULL);
-
+#if WINDOWSSYSTEM
+	FILETIME tStart, tEnd;
+	GetSystemTimeAsFileTime(&tStart);
+#else
+	struct timeval profileStart, profileEnd;
+	gettimeofday(&profileStart, NULL);
+#endif
     int p = 0, oldp = -1;
     int iterations = m_data.getSampleCount() * ITERATIONS;
     outputStatusMessage("Training the network");
@@ -184,9 +189,13 @@ void train(network net, shared_ptr<vector<sample>> dataSet)
         }
     }
     updateOutputPercentage(p, true);
-
-    gettimeofday(&profileEnd, NULL);
-    PrintTimeDifference(profileStart, profileEnd);
+#if WINDOWSSYSTEM
+	GetSystemTimeAsFileTime(&tEnd);
+	PrintTimeDifference(tStart, tEnd);
+#else
+	gettimeofday(&profileEnd, NULL);
+	PrintTimeDifference(profileStart, profileEnd);
+#endif
 }
 //============================================================================
 void printVector(vector<double> vec)

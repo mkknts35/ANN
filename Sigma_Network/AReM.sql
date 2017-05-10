@@ -24,3 +24,15 @@ CREATE TABLE `arem` (
 
 
 /*time,avg_rss12,var_rss12,avg_rss13,var_rss13,avg_rss23,var_rss23,activity*/
+
+/*C:/Users/Michael/Source/Repos/ANN/Sigma_Network/
+
+SELECT order_id,product_name,qty
+FROM orders
+WHERE foo = 'bar'
+INTO OUTFILE '/var/lib/mysql-files/orders.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+*/
